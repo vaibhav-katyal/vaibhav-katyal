@@ -1,10 +1,10 @@
-<div align="center">
+
 
 # Vaibhav Katyal
 
 <b>Full-stack developer with a strong passion for problem solving, data structures, and building impactful web applications.</b>
 
-</div>
+
 
 
 ## 🌐 Socials:
