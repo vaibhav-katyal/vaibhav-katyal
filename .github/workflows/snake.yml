@@ -1,97 +1,124 @@
-name: GitHub Snake Game
+# name: Profile Assets
 
+# on:
+#   schedule:
+#     - cron: "0 0 * * *"
+#   workflow_dispatch:
+#   push:
+#     branches:
+#       - main
 
+# jobs:
+#   generate:
+#     runs-on: ubuntu-latest
+#     timeout-minutes: 10
 
-on:
+#     steps:
+#       - name: Checkout Repository
+#         uses: actions/checkout@v4
 
-  # Schedule the workflow to run daily at midnight UTC
+#       - name: Generate GitHub Contributions Snake Animations
+#         uses: Platane/snk@v3
+#         with:
+#           github_user_name: ${{ github.repository_owner }}
+#           outputs: |
+#             dist/github-snake.svg
+#             dist/github-snake-dark.svg?palette=github-dark
+#             dist/ocean.gif?color_snake=orange&color_dots=#bfd6f6,#8dbdff,#64a1f4,#4b91f1,#3c7dd9
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  schedule:
+#       - name: Generate LeetCode Stats Card
+#         shell: bash
+#         env:
+#           LEETCODE_USERNAME: ${{ vars.LEETCODE_USERNAME }}
+#         run: |
+#           python - <<'PY'
+#           import html
+#           import json
+#           import os
+#           import urllib.request
+#           from pathlib import Path
 
-    - cron: "0 0 * * *"
+#           username = os.environ.get("LEETCODE_USERNAME") or "vaibhavkatyal"
+#           api_url = f"https://leetcode-stats-api.herokuapp.com/{username}"
 
+#           payload = {}
+#           try:
+#               with urllib.request.urlopen(api_url, timeout=20) as response:
+#                   payload = json.load(response)
+#           except Exception as exc:
+#               payload = {"status": "unavailable", "message": str(exc)}
 
+#           def get_value(*keys, default="N/A"):
+#               for key in keys:
+#                   value = payload.get(key)
+#                   if value not in (None, ""):
+#                       return value
+#               return default
 
-  # Allow manual triggering of the workflow
+#           solved = get_value("totalSolved", default="N/A")
+#           easy = get_value("easySolved", default="N/A")
+#           medium = get_value("mediumSolved", default="N/A")
+#           hard = get_value("hardSolved", default="N/A")
+#           ranking = get_value("ranking", default="N/A")
+#           acceptance = get_value("acceptanceRate", default="N/A")
+#           total_questions = get_value("totalQuestions", default="N/A")
 
-  workflow_dispatch:
+#           def text_line(x, y, value, size=22, color="#cbd5e1", weight="400"):
+#               return f'<text x="{x}" y="{y}" fill="{color}" font-family="JetBrains Mono, Consolas, monospace" font-size="{size}" font-weight="{weight}">{html.escape(str(value))}</text>'
 
+#           boxes = [
+#               ("Solved", solved, "#f97316"),
+#               ("Easy", easy, "#38bdf8"),
+#               ("Medium", medium, "#fbbf24"),
+#               ("Hard", hard, "#f87171"),
+#               ("Ranking", ranking, "#a78bfa"),
+#               ("Acceptance", acceptance, "#34d399"),
+#           ]
 
+#           box_width = 230
+#           box_height = 60
+#           start_x = 48
+#           start_y = 112
+#           gap_x = 18
+#           gap_y = 16
 
-  # Trigger the workflow on pushes to the main branch
+#           box_markup = []
+#           for index, (label, value, color) in enumerate(boxes):
+#               col = index % 3
+#               row = index // 3
+#               x = start_x + col * (box_width + gap_x)
+#               y = start_y + row * (box_height + gap_y)
+#               box_markup.append(
+#                   f'<rect x="{x}" y="{y}" rx="14" ry="14" width="{box_width}" height="{box_height}" fill="#111827" stroke="#243244" stroke-width="1.5" />'
+#               )
+#               box_markup.append(text_line(x + 18, y + 23, label, size=13, color="#94a3b8", weight="700"))
+#               box_markup.append(text_line(x + 18, y + 46, value, size=22, color=color, weight="700"))
 
-  push:
+#           svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="760" height="250" viewBox="0 0 760 250" role="img" aria-label="LeetCode stats for {html.escape(username)}">
+#   <defs>
+#     <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+#       <stop offset="0%" stop-color="#0b1020" />
+#       <stop offset="100%" stop-color="#111827" />
+#     </linearGradient>
+#   </defs>
+#   <rect width="760" height="250" rx="20" fill="url(#bg)" stroke="#243244" stroke-width="2" />
+#   <rect x="24" y="22" width="712" height="38" rx="12" fill="#0f172a" stroke="#243244" stroke-width="1" />
+#   {text_line(46, 47, f"LEETCODE // {username.upper()}", size=20, color="#f97316", weight="700")}
+#   {text_line(46, 79, f"{solved} solved · {easy} easy · {medium} medium · {hard} hard", size=15, color="#cbd5e1")}
+#   {text_line(46, 228, f"Acceptance {acceptance}%  ·  Rank {ranking}  ·  /{total_questions} problems", size=13, color="#94a3b8")}
+#   {''.join(box_markup)}
+# </svg>'''
 
-    branches:
+#           Path("dist").mkdir(exist_ok=True)
+#           Path("dist/leetcode-stats.svg").write_text(svg, encoding="utf-8")
+#           PY
 
-      - main
-
-
-
-jobs:
-
-  generate:
-
-    runs-on: ubuntu-latest
-
-    timeout-minutes: 10
-
-
-
-    steps:
-
-      # Step 1: Checkout the repository
-
-      - name: Checkout Repository
-
-        uses: actions/checkout@v3
-
-
-
-      # Step 2: Generate the snake animations
-
-      - name: Generate GitHub Contributions Snake Animations
-
-        uses: Platane/snk@v3
-
-        with:
-
-          # GitHub username to generate the animation for
-
-          github_user_name: ${{ github.repository_owner }}
-
-
-
-          # Define the output files and their configurations
-
-          outputs: |
-
-            dist/github-snake.svg
-
-            dist/github-snake-dark.svg?palette=github-dark
-
-            dist/ocean.gif?color_snake=orange&color_dots=#bfd6f6,#8dbdff,#64a1f4,#4b91f1,#3c7dd9
-
-        env:
-
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
-
-      # Step 3: Deploy the generated files to the 'output' branch
-
-      - name: Deploy to Output Branch
-
-        uses: peaceiris/actions-gh-pages@v3
-
-        with:
-
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
-          publish_dir: ./dist
-
-          publish_branch: output
-
-          # Optionally, you can set a custom commit message
-
-          commit_message: "Update snake animation [skip ci]"
+#       - name: Deploy to Output Branch
+#         uses: peaceiris/actions-gh-pages@v3
+#         with:
+#           github_token: ${{ secrets.GITHUB_TOKEN }}
+#           publish_dir: ./dist
+#           publish_branch: output
+#           commit_message: "Update profile assets [skip ci]"
